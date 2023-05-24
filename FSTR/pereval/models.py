@@ -19,7 +19,7 @@ class Coords(models.Model):
 
 class Images(models.Model):
     title = models.TextField(blank=True, null=True)
-    date_added = models.DateTimeField(auto_now_add=True)
+    date_added = models.DateTimeField(blank=True, null=True)
     img = models.BinaryField()
 
     class Meta:
@@ -27,27 +27,19 @@ class Images(models.Model):
 
 
 class PerevalAdded(models.Model):
-    STATUS_CHOICES = [
-        ('new', 'New'),
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
-    ]
-
-    date_added = models.DateField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new')
+    date_added = models.DateTimeField(blank=True, null=True)
+    raw_data = models.JSONField(blank=True, null=True)
+    status = models.CharField(max_length=10, blank=True, null=True)
     beautytitle = models.TextField(db_column='beautyTitle', blank=True, null=True)  # Field name made lowercase.
     title = models.TextField(blank=True, null=True)
     other_titles = models.TextField(blank=True, null=True)
     connect = models.TextField(blank=True, null=True)
-    add_time = models.TimeField(auto_now_add=True)
-    coord_id = models.ForeignKey(Coords, models.CASCADE, related_name='perevaladded_coord_id_set',
-                                 blank=True, null=True)
+    add_time = models.DateTimeField(blank=True, null=True)
+    coord = models.ForeignKey(Coords, models.DO_NOTHING, blank=True, null=True)
     winter = models.TextField(blank=True, null=True)
     summer = models.TextField(blank=True, null=True)
     autumn = models.TextField(blank=True, null=True)
     spring = models.TextField(blank=True, null=True)
-
 
     class Meta:
         db_table = 'pereval_added'
@@ -62,8 +54,8 @@ class PerevalAreas(models.Model):
 
 
 class PerevalImages(models.Model):
-    pereval = models.ForeignKey(PerevalAdded, models.CASCADE)
-    image = models.ForeignKey(Images, models.CASCADE)
+    pereval = models.ForeignKey(PerevalAdded, models.DO_NOTHING, blank=True, null=True)
+    image = models.ForeignKey(Images, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         db_table = 'pereval_images'
