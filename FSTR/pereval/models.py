@@ -14,56 +14,58 @@ class Coords(models.Model):
     height = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'coords'
 
 
 class Images(models.Model):
     title = models.TextField(blank=True, null=True)
-    date_added = models.DateTimeField(blank=True, null=True)
+    date_added = models.DateTimeField(auto_now_add=True)
     img = models.BinaryField()
 
     class Meta:
-        managed = False
         db_table = 'images'
 
 
 class PerevalAdded(models.Model):
-    date_added = models.DateTimeField(blank=True, null=True)
-    raw_data = models.JSONField(blank=True, null=True)
-    status = models.CharField(max_length=10, blank=True, null=True)
+    STATUS_CHOICES = [
+        ('new', 'New'),
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+    ]
+
+    date_added = models.DateField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new')
     beautytitle = models.TextField(db_column='beautyTitle', blank=True, null=True)  # Field name made lowercase.
     title = models.TextField(blank=True, null=True)
     other_titles = models.TextField(blank=True, null=True)
     connect = models.TextField(blank=True, null=True)
-    add_time = models.DateTimeField(blank=True, null=True)
-    coord = models.ForeignKey(Coords, models.CASCADE, blank=True, null=True)
+    add_time = models.TimeField(auto_now_add=True)
+    coord_id = models.ForeignKey(Coords, models.CASCADE, related_name='perevaladded_coord_id_set',
+                                 blank=True, null=True)
     winter = models.TextField(blank=True, null=True)
     summer = models.TextField(blank=True, null=True)
     autumn = models.TextField(blank=True, null=True)
     spring = models.TextField(blank=True, null=True)
 
+
     class Meta:
-        managed = False
         db_table = 'pereval_added'
 
 
 class PerevalAreas(models.Model):
-    id = models.BigAutoField(primary_key=True)
     id_parent = models.BigIntegerField()
     title = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'pereval_areas'
 
 
 class PerevalImages(models.Model):
-    pereval = models.ForeignKey(PerevalAdded, models.CASCADE, blank=True, null=True)
-    image = models.ForeignKey(Images, models.CASCADE, blank=True, null=True)
+    pereval = models.ForeignKey(PerevalAdded, models.CASCADE)
+    image = models.ForeignKey(Images, models.CASCADE)
 
     class Meta:
-        managed = False
         db_table = 'pereval_images'
 
 
@@ -71,7 +73,6 @@ class SprActivitiesTypes(models.Model):
     title = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'spr_activities_types'
 
 
@@ -83,5 +84,4 @@ class Users(models.Model):
     otc = models.CharField(max_length=254, blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'users'
