@@ -20,15 +20,6 @@ class Coords(models.Model):
         return f'Latitude: {self.latitude}, longtitude: {self.longtitude}, height: {self.height}'
 
 
-class Images(models.Model):
-    title = models.TextField(blank=True, null=True)
-    date_added = models.DateTimeField(blank=True, null=True)
-    img = models.BinaryField()
-
-    class Meta:
-        db_table = 'images'
-
-
 class PerevalAdded(models.Model):
     date_added = models.DateField(auto_now_add=True, blank=True, null=True)
     status = models.CharField(max_length=10, default='new')
@@ -47,20 +38,22 @@ class PerevalAdded(models.Model):
         db_table = 'pereval_added'
 
 
+class Image(models.Model):
+    title = models.TextField(blank=True, null=True)
+    date_added = models.DateTimeField(blank=True, null=True, auto_now_add=True)
+    img = models.ImageField()
+    pereval = models.ForeignKey(PerevalAdded, related_name="images", on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        db_table = 'images'
+
+
 class PerevalAreas(models.Model):
     id_parent = models.BigIntegerField()
     title = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'pereval_areas'
-
-
-class PerevalImages(models.Model):
-    pereval = models.ForeignKey(PerevalAdded, models.CASCADE, blank=True, null=True)
-    image = models.ForeignKey(Images, models.CASCADE, blank=True, null=True)
-
-    class Meta:
-        db_table = 'pereval_images'
 
 
 class SprActivitiesTypes(models.Model):
