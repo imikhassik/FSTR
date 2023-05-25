@@ -16,6 +16,9 @@ class Coords(models.Model):
     class Meta:
         db_table = 'coords'
 
+    def __str__(self):
+        return f'Latitude: {self.latitude}, longtitude: {self.longtitude}, height: {self.height}'
+
 
 class Images(models.Model):
     title = models.TextField(blank=True, null=True)
@@ -27,15 +30,14 @@ class Images(models.Model):
 
 
 class PerevalAdded(models.Model):
-    date_added = models.DateTimeField(blank=True, null=True)
-    raw_data = models.JSONField(blank=True, null=True)
-    status = models.CharField(max_length=10, blank=True, null=True)
+    date_added = models.DateField(auto_now_add=True, blank=True, null=True)
+    status = models.CharField(max_length=10, default='new')
     beautytitle = models.TextField(db_column='beautyTitle', blank=True, null=True)  # Field name made lowercase.
     title = models.TextField(blank=True, null=True)
     other_titles = models.TextField(blank=True, null=True)
     connect = models.TextField(blank=True, null=True)
-    add_time = models.DateTimeField(blank=True, null=True)
-    coord = models.ForeignKey(Coords, models.DO_NOTHING, blank=True, null=True)
+    add_time = models.TimeField(auto_now_add=True, blank=True, null=True)
+    coord = models.ForeignKey(Coords, models.CASCADE, related_name='perevals_added', blank=True, null=True)
     winter = models.TextField(blank=True, null=True)
     summer = models.TextField(blank=True, null=True)
     autumn = models.TextField(blank=True, null=True)
@@ -54,8 +56,8 @@ class PerevalAreas(models.Model):
 
 
 class PerevalImages(models.Model):
-    pereval = models.ForeignKey(PerevalAdded, models.DO_NOTHING, blank=True, null=True)
-    image = models.ForeignKey(Images, models.DO_NOTHING, blank=True, null=True)
+    pereval = models.ForeignKey(PerevalAdded, models.CASCADE, blank=True, null=True)
+    image = models.ForeignKey(Images, models.CASCADE, blank=True, null=True)
 
     class Meta:
         db_table = 'pereval_images'
