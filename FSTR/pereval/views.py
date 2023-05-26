@@ -5,23 +5,23 @@ from rest_framework import status
 from rest_framework import mixins
 from rest_framework import generics
 
-from .models import PerevalAdded
-from .serializers import PerevalAddedSerializer
+from .models import Pereval
+from .serializers import PerevalSerializer
 
 
 # class SubmitData(APIView):
-#     serializer_class = PerevalAddedSerializer
+#     serializer_class = PerevalSerializer
 #
 #     def get_serializer(self):
 #         return self.serializer_class()
 #
 #     def get(self, request):
-#         perevals = PerevalAdded.objects.all()
-#         serializer = PerevalAddedSerializer(perevals, many=True)
+#         perevals = Pereval.objects.all()
+#         serializer = PerevalSerializer(perevals, many=True)
 #         return Response(serializer.data)
 #
 #     def post(self, request):
-#         serializer = PerevalAddedSerializer(data=request.data)
+#         serializer = PerevalSerializer(data=request.data)
 #         if serializer.is_valid():
 #             serializer.save()
 #             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -29,8 +29,8 @@ from .serializers import PerevalAddedSerializer
 
 
 class SubmitData(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView):
-    queryset = PerevalAdded.objects.all()
-    serializer_class = PerevalAddedSerializer
+    queryset = Pereval.objects.all()
+    serializer_class = PerevalSerializer
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
