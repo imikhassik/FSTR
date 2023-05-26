@@ -13,8 +13,8 @@ class ImagesSerializer(serializers.ModelSerializer):
     img = serializers.CharField()
 
     class Meta:
-        model=Image
-        fields = '__all__'
+        model = Image
+        fields = ['title', 'date_added', 'img']
 
 
 class PerevalAddedSerializer(serializers.ModelSerializer):

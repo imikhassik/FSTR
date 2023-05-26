@@ -39,13 +39,13 @@ class PerevalAdded(models.Model):
 
 
 class Image(models.Model):
+    pereval = models.ForeignKey(PerevalAdded, related_name="images", on_delete=models.CASCADE, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     date_added = models.DateTimeField(blank=True, null=True, auto_now_add=True)
     img = models.ImageField()
-    pereval = models.ForeignKey(PerevalAdded, related_name="images", on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
-        db_table = 'images'
+        db_table = 'image'
 
 
 class PerevalAreas(models.Model):
