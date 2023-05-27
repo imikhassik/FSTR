@@ -2,7 +2,7 @@ from django.db import models
 
 
 class User(models.Model):
-    email = models.CharField(unique=True, max_length=320, blank=True, null=True)
+    email = models.CharField(max_length=320, blank=True, null=True)
     fam = models.CharField(max_length=254, blank=True, null=True)
     name = models.CharField(max_length=254, blank=True, null=True)
     otc = models.CharField(max_length=254, blank=True, null=True)
@@ -35,7 +35,7 @@ class Pereval(models.Model):
 
 
 class Image(models.Model):
-    pereval = models.ForeignKey(Pereval, related_name="images", on_delete=models.CASCADE, blank=True, null=True)
+    pereval = models.ForeignKey(Pereval, related_name="images", on_delete=models.CASCADE)
     title = models.TextField(blank=True, null=True)
     date_added = models.DateTimeField(blank=True, null=True, auto_now_add=True)
-    data = models.ImageField()
+    data = models.CharField(max_length=320)
