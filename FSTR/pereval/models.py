@@ -23,7 +23,14 @@ class Level(models.Model):
 
 
 class Pereval(models.Model):
-    status = models.CharField(max_length=10, default='new')
+    STATUS_CHOICES = [
+        ('new', 'new'),
+        ('pending', 'pending'),
+        ('accepted', 'accepted'),
+        ('rejected', 'rejected'),
+    ]
+
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new')
     beauty_title = models.TextField(blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     other_titles = models.TextField(blank=True, null=True)
