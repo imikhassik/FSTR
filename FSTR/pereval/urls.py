@@ -1,9 +1,9 @@
 from django.urls import path
-from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import SubmitData
+from .views import CreateListView, RetrieveUpdateView
 
 
 urlpatterns = [
-    path('', SubmitData.as_view()),
+    path('', CreateListView.as_view()),
+    path('<int:pk>/', RetrieveUpdateView.as_view()),
 ]

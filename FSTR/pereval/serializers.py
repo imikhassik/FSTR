@@ -1,5 +1,8 @@
-from django.utils import timezone
 from rest_framework import serializers
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.serializers import ValidationError
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 from .models import Pereval, Coords, Image, User, Level
 
@@ -28,17 +31,27 @@ class ImageSerializer(serializers.ModelSerializer):
         fields = ['title', 'data']
 
 
-class PerevalSerializer(serializers.ModelSerializer):
-    add_time = serializers.DateTimeField(initial=timezone.now())
-    user = UserSerializer()
-    coords = CoordsSerializer()
-    level = LevelSerializer()
-    images = ImageSerializer(many=True)
+class PerevalSerializer(WritableNestedModelSerializer):
+    user = UserSerializer(required=False)
+    coords = CoordsSerializer(required=False)
+    level = LevelSerializer(required=False)
+    images = ImageSerializer(many=True, required=False)
 
     class Meta:
         model = Pereval
-        fields = ['beauty_title', 'title', 'other_titles', 'connect',
+        fields = ['status', 'beauty_title', 'title', 'other_titles', 'connect',
                   'add_time', 'user', 'coords', 'level', 'images']
+        read_only_fields = ['status', 'add_time']
+
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get('request')
+
+        if request and request.method == 'PATCH':
+            fields.pop('status')
+            fields.pop('add_time')
+
+        return fields
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -62,3 +75,23 @@ class PerevalSerializer(serializers.ModelSerializer):
             Image.objects.create(pereval=pereval, **image_data)
 
         return pereval
+
+    def validate(self, attrs):
+        user = self.instance.user
+        user_data = attrs.get('user')
+
+        if user.email != user_data.get('email') or user.fam != user_data.get('fam') or \
+            user.name != user_data.get('name') or user.otc != user_data.get('otc') or \
+            user.phone != user_data.get('phone'):
+            raise ValidationError("User information cannot be changed.")
+
+        super().validate(attrs)
+
+        return attrs
+
+    def handle_exception(self, exc):
+        if isinstance(exc, ValidationError):
+            response_data = {"state": 0, "message": str(exc)}
+            return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+        return super().handle_exception(exc)
