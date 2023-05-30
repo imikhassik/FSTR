@@ -3,8 +3,16 @@ from rest_framework import mixins, status
 from rest_framework import generics
 from rest_framework.exceptions import ValidationError
 
+from django_filters import rest_framework as df_filters
+
 from .models import Pereval
 from .serializers import PerevalSerializer
+
+
+class PerevalFilter(df_filters.FilterSet):
+    class Meta:
+        model = Pereval
+        fields = ['user__email']
 
 
 class CreateListView(mixins.CreateModelMixin,
@@ -12,6 +20,8 @@ class CreateListView(mixins.CreateModelMixin,
                  generics.GenericAPIView):
     queryset = Pereval.objects.all()
     serializer_class = PerevalSerializer
+    filter_backends = [df_filters.DjangoFilterBackend]
+    filterset_class = PerevalFilter
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
