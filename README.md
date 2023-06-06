@@ -30,12 +30,12 @@ Example JSON data:
   "height": "1200"}
  
  
-  level:{"winter": "", 
+  "level":{"winter": "", 
   "summer": "1А",
   "autumn": "1А",
   "spring": ""},
  
-   images: [{data:"<img1>", title:"Saddle"}, {data:"<img2>", title:"Ascend"}]
+   "images": [{data:"<img1>", title:"Saddle"}, {data:"<img2>", title:"Ascend"}]
 }
 ```
 
