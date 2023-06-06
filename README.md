@@ -35,7 +35,7 @@ Example JSON data:
   "autumn": "1А",
   "spring": ""},
  
-   "images": [{data:"<img1>", title:"Saddle"}, {data:"<img2>", title:"Ascend"}]
+   "images": [{"data":"<img1>", "title":"Saddle"}, {"data":"<img2>", "title":"Ascend"}]
 }
 ```
 
