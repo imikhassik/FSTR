@@ -1,10 +1,11 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework.utils import json
 
 from pereval.models import Pereval, User, Coords, Level, Image
 from pereval.serializers import PerevalSerializer
-from pereval.tests.data import *
+from pereval.tests.payloads import *
 
 
 class BaseTestCase(APITestCase):
@@ -70,6 +71,7 @@ class BaseTestCase(APITestCase):
         ])
 
         self.pereval3 = Pereval.objects.create(
+            status='pending',
             beauty_title='Beauty title 3',
             title='Title 3',
             other_titles='Other titles 3',
@@ -132,20 +134,104 @@ class GetSinglePerevalTest(BaseTestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
 
+class CreateNewPerevalTest(APITestCase):
+    """ Test module for inserting a new pereval """
+    def setUp(self):
+        self.valid_payload = valid_pereval_test_data
+        self.missing_user = missing_user_test_data
+        self.missing_coords = missing_coords_test_data
+        self.missing_level = missing_level_test_data
+        self.missing_images = missing_images_test_data
+
+    def test_create_valid_pereval(self):
+        response = self.client.post(
+            reverse('create-list'),
+            data=json.dumps(self.valid_payload),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_missing_user_pereval(self):
+        response = self.client.post(
+            reverse('create-list'),
+            data=json.dumps(self.missing_user),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_missing_coords_pereval(self):
+        response = self.client.post(
+            reverse('create-list'),
+            data=json.dumps(self.missing_coords),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_missing_level_pereval(self):
+        response = self.client.post(
+            reverse('create-list'),
+            data=json.dumps(self.missing_level),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_missing_images_pereval(self):
+        response = self.client.post(
+            reverse('create-list'),
+            data=json.dumps(self.missing_images),
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-    # def test_create_pereval(self):
-    #     """
-    #     Ensure we can create a new pereval object
-    #     """
-    #     url = reverse('create-list')
-    #     data = create_pereval_test_data
-    #     response = self.client.post(url, data, format='json')
-    #     self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-    #     self.assertEqual(Pereval.objects.get().title, 'Пхия')
-    #
-    # def test_get_data_by_email(self):
-    #     url = reverse('create-list')
-    #     data = create_pereval_test_data
-    #     self.client.post(url, data, format='json')
-    #     response = self.client.get("/submitData/", {"user__email": "qwerty@mail.ru"})
+class PatchSinglePerevalTest(BaseTestCase):
+    """ Test module for patching a single pereval """
+    def setUp(self):
+        super().setUp()
+
+    def test_valid_patch_pereval(self):
+        response = self.client.patch(path=reverse('retrieve-update',
+                                                  kwargs={'pk': self.pereval1.pk}),
+                                     data=patch_valid_payload,
+                                     format='json')
+        self.assertEqual(response.data, {'state': 1, 'message': 'Success'})
+
+    def test_changed_user_patch_pereval(self):
+        response = self.client.patch(path=reverse('retrieve-update',
+                                                  kwargs={'pk': self.pereval1.pk}),
+                                     data=patch_changed_user_payload,
+                                     format='json')
+        pereval = Pereval.objects.get(pk=self.pereval1.pk)
+        serializer = PerevalSerializer(instance=pereval,
+                                       data=patch_changed_user_payload,
+                                       partial=True)
+        serializer.is_valid()
+        self.assertEqual(response.data, {'state': 0, 'message': serializer.errors})
+
+    def test_invalid_coords_pereval(self):
+        response = self.client.patch(path=reverse('retrieve-update',
+                                                  kwargs={'pk': self.pereval1.pk}),
+                                     data=patch_invalid_coords_payload,
+                                     format='json')
+        pereval = Pereval.objects.get(pk=self.pereval1.pk)
+        serializer = PerevalSerializer(instance=pereval,
+                                       data=patch_invalid_coords_payload,
+                                       partial=True)
+        serializer.is_valid()
+        self.assertEqual(response.data, {'state': 0, 'message': serializer.errors})
+
+    def test_non_new_status_pereval(self):
+        response = self.client.patch(path=reverse('retrieve-update',
+                                                 kwargs={'pk': self.pereval3.pk}),
+                                     data=patch_non_new_status_payload,
+                                     format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class GetPerevalByEmailTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+    def test_get_data_by_email(self):
+        response = self.client.get("/submitData/", {"user__email": "user2@mail.ru"})
+        self.assertEqual(len(response.data), 1)
